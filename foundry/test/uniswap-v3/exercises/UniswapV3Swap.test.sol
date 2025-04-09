@@ -77,8 +77,8 @@ contract UniswapV3SwapTest is Test {
 
     // Exercise 4
     // Swap maximum of 1000 DAI to obtain exactly 0.01 WBTC
-    // - Swap DAI to WETH on pool with 0.3% fee
-    // - Swap WETH to WBTC on pool with 0.3% fee
+    // - Swap WBTC to WETH on pool with 0.3% fee
+    // - Swap WETH to DAI on pool with 0.3% fee
     // - Send WBTC from Uniswap V3 to this contract
     // NOTE: WBTC has 8 decimals
     function test_exactOutput() public {

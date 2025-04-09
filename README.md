@@ -110,11 +110,11 @@ forge build --via-ir
 cd foundry
 
 # Set FORK_URL
-FORK_URL= rpc url for testing on fork
+FORK_URL= 'https://eth-mainnet.g.alchemy.com/v2/swC3O83771NwEtdRW_EJeprCHcwioCl_'
 
 # Test exercises
 forge test --fork-url $FORK_URL \
---match-path test/[name of DeFi protocol]/exercises/[name of test].test.sol \
+--match-path test/uniswap-v3/exercises/UniswapV3SwapTest.test.sol \
 --match-test name_of_test \
 -vvv
 

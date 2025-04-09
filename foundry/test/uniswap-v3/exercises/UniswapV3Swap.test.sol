@@ -5,12 +5,7 @@ import {Test, console2} from "forge-std/Test.sol";
 import {IERC20} from "../../../src/interfaces/IERC20.sol";
 import {IWETH} from "../../../src/interfaces/IWETH.sol";
 import {ISwapRouter} from "../../../src/interfaces/uniswap-v3/ISwapRouter.sol";
-import {
-    DAI,
-    WETH,
-    WBTC,
-    UNISWAP_V3_SWAP_ROUTER_02
-} from "../../../src/Constants.sol";
+import {DAI, WETH, WBTC, UNISWAP_V3_SWAP_ROUTER_02} from "../../../src/Constants.sol";
 
 contract UniswapV3SwapTest is Test {
     IWETH private weth = IWETH(WETH);
@@ -32,7 +27,23 @@ contract UniswapV3SwapTest is Test {
 
         // Write your code here
         // Call router.exactInputSingle
-        uint256 amountOut = 0;
+
+        uint256 amountIn = 1000 * 1e18;
+
+        // Prepare swap parameters
+        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
+            .ExactInputSingleParams({
+                tokenIn: DAI,
+                tokenOut: WETH,
+                fee: POOL_FEE,
+                recipient: address(this),
+                amountIn: amountIn,
+                amountOutMinimum: 1,
+                sqrtPriceLimitX96: 0
+            });
+
+        // Execute the swap
+        uint amountOut = router.exactInputSingle(params);
 
         uint256 wethAfter = weth.balanceOf(address(this));
 
@@ -50,8 +61,27 @@ contract UniswapV3SwapTest is Test {
     function test_exactInput() public {
         // Write your code here
         // Call router.exactInput
-        bytes memory path;
-        uint256 amountOut = 0;
+
+        uint256 amountIn = 1000 * 1e18;
+        // Prepare swap parameters
+
+        bytes memory path = abi.encodePacked(
+            DAI,
+            uint24(POOL_FEE),
+            WETH,
+            uint24(POOL_FEE),
+            WBTC
+        );
+
+        ISwapRouter.ExactInputParams memory params = ISwapRouter
+            .ExactInputParams({
+                path: path,
+                recipient: address(this),
+                amountIn: amountIn,
+                amountOutMinimum: 1
+            });
+
+        uint256 amountOut = router.exactInput(params);
 
         console2.log("WBTC amount out %e", amountOut);
         assertGt(amountOut, 0);
@@ -66,7 +96,23 @@ contract UniswapV3SwapTest is Test {
 
         // Write your code here
         // Call router.exactOutputSingle
-        uint256 amountIn = 0;
+        uint256 amountInMax = 1000 * 1e18;
+        uint256 amountOut = 0.1 * 1e18;
+
+        // Prepare swap parameters
+        ISwapRouter.ExactOutputSingleParams memory params = ISwapRouter
+            .ExactOutputSingleParams({
+                tokenIn: DAI,
+                tokenOut: WETH,
+                fee: POOL_FEE,
+                recipient: address(this),
+                amountOut: amountOut,
+                amountInMaximum: amountInMax,
+                sqrtPriceLimitX96: 0
+            });
+
+        // Execute the swap
+        uint256 amountIn = router.exactOutputSingle(params);
 
         uint256 wethAfter = weth.balanceOf(address(this));
 
@@ -84,8 +130,32 @@ contract UniswapV3SwapTest is Test {
     function test_exactOutput() public {
         // Write your code here
         // Call router.exactOutput
-        bytes memory path;
-        uint256 amountIn = 0;
+        uint256 amountInMax = 1000 * 1e18;
+        uint256 amountOut = 0.01 * 1e8;
+
+        // Prepare swap parameters
+        
+        // bytes memory path = abi.encodePacked(
+        //     DAI,
+        //     uint24(POOL_FEE),
+        //     WETH,
+        //     uint24(POOL_FEE),
+        //     WBTC
+        // );
+
+        bytes memory path =
+            abi.encodePacked(WBTC, uint24(3000), WETH, uint24(3000), DAI);
+
+        ISwapRouter.ExactOutputParams memory params = ISwapRouter
+            .ExactOutputParams({
+                path: path,
+                recipient: address(this),
+                amountOut: amountOut,
+                amountInMaximum: amountInMax
+            });
+
+        // Execute the swap
+        uint256 amountIn = router.exactOutput(params);
 
         console2.log("DAI amount in %e", amountIn);
         assertLe(amountIn, 1000 * 1e18);
